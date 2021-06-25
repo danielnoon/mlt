@@ -1,0 +1,55 @@
+:root {
+  --c-light-bg: #f4f1de;
+  --c-light-text: rgba(0, 0, 0, 0.85);
+  --c-dark-bg: #3d405b;
+  --c-dark-text: rgba(255, 255, 255, 0.85);
+  --c-accent-green: #81b29a;
+  --c-accent-green-text: var(--c-light-text);
+  --c-accent-orange: #e07a5f;
+  --c-accent-orange-text: var(--c-dark-text);
+  --c-accent-yellow: #f2cc8f;
+  --c-accent-yellow-text: var(--c-light-text);
+
+  --f-heading: "Balsamiq Sans", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
+    "Helvetica Neue", sans-serif;
+  --f-body: "Rubik", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+    "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+}
+
+body {
+  margin: 0;
+  font-family: "Rubik", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+    "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  box-sizing: border-box;
+}
+
+#root {
+  --c-bg: var(--c-light-bg);
+  --c-text: var(--c-light-text);
+  --c-accent: var(--c-accent-green);
+  --c-accent-text: var(--c-light-text);
+  --c-secondary: var(--c-accent-orange);
+  --c-secondary-text: var(--c-dark-text);
+}
+
+@media (prefers-color-scheme: dark) {
+  #root {
+    --c-bg: var(--c-dark-bg);
+    --c-text: var(--c-dark-text);
+    --c-accent: var(--c-accent-orange);
+    --c-accent-text: var(--c-dark-text);
+    --c-secondary: var(--c-accent-green);
+    --c-secondary-text: var(--c-light-text);
+  }
+}
+
+h1,
+h2,
+h3 {
+  font-family: "Balsamiq Sans";
+}
