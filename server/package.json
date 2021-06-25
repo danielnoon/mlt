@@ -3,8 +3,10 @@
   "version": "1.0.0",
   "description": "",
   "main": "dist/index.js",
+  "engines": {
+    "node": "16.x"
+  },
   "scripts": {
-    "prebuild": "tslint -c tslint.json -p tsconfig.json --fix",
     "build": "tsc",
     "start": "node .",
     "dev": "nodemon src/index.ts",
