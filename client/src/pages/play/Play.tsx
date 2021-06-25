@@ -11,9 +11,8 @@ import { Room } from "./types";
 import Joining from "./Joining";
 import Flex from "../../components/Flex";
 import Center from "../../components/Center";
-import Padding from "../../components/Padding";
-import { Done, ExitToApp } from "@material-ui/icons";
-import { Heading1, Heading2 } from "../../components/Typography";
+import { ExitToApp } from "@material-ui/icons";
+import { Heading1 } from "../../components/Typography";
 import RoomCode from "../../components/RoomCode";
 import Players from "./Players";
 
