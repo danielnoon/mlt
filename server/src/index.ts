@@ -1,5 +1,9 @@
 import { Server } from "socket.io";
+import { counter } from "./counter";
 import data from "./data/questions.json";
+import { deadUsers, rooms, submissions, users } from "./data/store";
+import { getToken, validateToken } from "./token";
+import { Room, User } from "./types";
 
 const mixed = data.data.reduce<string[]>(
   (prev, curr) => [...curr.questions, ...prev],
@@ -23,32 +27,6 @@ const io = new Server(parseInt(process.env.PORT, 10) || 8080, {
   },
 });
 
-interface User {
-  name: string;
-  id: string;
-  room: string;
-}
-
-interface Room {
-  question: string;
-  state: "joining" | "deliberating" | "reviewing";
-  code: string;
-  host: string;
-  players: User[];
-  queue: User[];
-  ready: string[];
-  category: string;
-}
-
-interface Submission {
-  user: string;
-  choice: string;
-}
-
-const deadUsers = new Map<string, User>();
-const users = new Map<string, User>();
-const rooms = new Map<string, Room>();
-const submissions = new Map<string, Submission[]>();
 const codeChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
 function generateRoom(): string {
@@ -81,14 +59,12 @@ function removeUser(id: string) {
   }
 }
 
-function resetUser(room: string, name: string) {
-  // TODO: get user back to playing after being disconnected
-}
-
 io.on("connect", (socket) => {
-  socket.on("join-room", (room: string, name: string, ack) => {
+  socket.on("join-room", async (room: string, name: string, ack) => {
     socket.join(room);
-    users.set(socket.id, { id: socket.id, name: name, room });
+    const user = { id: socket.id, name: name, room };
+
+    users.set(socket.id, user);
 
     if (rooms.has(room)) {
       const r = rooms.get(room)!;
@@ -99,14 +75,14 @@ io.on("connect", (socket) => {
 
       if (r.state !== "deliberating") {
         if (!r.players.find((p) => p.id === socket.id)) {
-          r.players.push(users.get(socket.id));
+          r.players.push(user);
         }
       } else {
         if (
           !r.players.find((p) => p.id === socket.id) &&
           !r.queue.find((p) => p.id === socket.id)
         ) {
-          r.queue.push(users.get(socket.id));
+          r.queue.push(user);
         }
       }
     } else {
@@ -114,24 +90,55 @@ io.on("connect", (socket) => {
         question: "",
         code: room,
         host: socket.id,
-        players: [users.get(socket.id)],
+        players: [user],
         queue: [],
         state: "joining",
         ready: [],
         category: "mixed",
+        results: [],
       };
 
       rooms.set(room, r);
       submissions.set(room, []);
     }
 
+    const token = await getToken(user);
+
     io.to(room).emit("update-room", rooms.get(room));
-    ack(rooms.get(room));
+    ack({ error: null, data: { room: rooms.get(room), token } });
   });
 
-  socket.on("start", (category: string = "mixed") => {
-    const user = users.get(socket.id);
+  socket.on("rejoin", async (token: string, ack) => {
+    const user = await validateToken(token).catch(() => "token error" as const);
+
+    if (user === "token error") {
+      ack({ error: "token invalid", data: null });
+      return;
+    }
+
     const room = rooms.get(user.room);
+
+    if (!room) {
+      ack({ error: "room does not exist", data: null });
+      return;
+    }
+
+    ack({ error: null, data: room });
+  });
+
+  socket.on("start", async (token: string, category: string = "mixed", ack) => {
+    const user = await validateToken(token).catch(() => "token error" as const);
+
+    if (user === "token error") {
+      ack({ error: "token invalid", data: null });
+      return;
+    }
+
+    const room = rooms.get(user.room);
+
+    if (!room) {
+      ack({ error: "room does not exist", data: null });
+    }
 
     if (room.state === "joining") {
       room.category = category;
@@ -146,33 +153,46 @@ io.on("connect", (socket) => {
     ack(code);
   });
 
-  socket.on("ready", () => {
-    const user = users.get(socket.id);
+  socket.on("ready", async (token: string, ack) => {
+    const user = await validateToken(token).catch(() => "token error" as const);
+
+    if (user === "token error") {
+      ack({ error: "token invalid", data: null });
+      return;
+    }
+
     const room = rooms.get(user.room);
+
+    if (!room) {
+      ack({ error: "room does not exist", data: null });
+    }
 
     if (!room.ready.includes(user.id)) {
       room.ready.push(user.id);
+
       if (room.ready.length === room.players.length) {
         room.question = questionFrom(room.category);
         room.state = "deliberating";
         room.ready = [];
       }
+
       io.to(room.code).emit("update-room", room);
+      ack({ error: null, data: null });
+    } else {
+      ack({ error: "already voted", data: null });
     }
   });
 
-  socket.on("submit", (choice) => {
-    const user = users.get(socket.id);
+  socket.on("submit", async (token: string, choice: string) => {
+    const user = await validateToken(token);
     const room = rooms.get(user.room);
     const subs = submissions.get(user.room);
 
     if (!subs.find((sub) => sub.user === user.id)) {
       subs.push({ choice, user: user.id });
       if (subs.length === room.players.length) {
-        io.to(room.code).emit(
-          "show-answers",
-          subs.map((s) => users.get(s.choice).name)
-        );
+        const results = Object.entries(counter(subs.map((s) => s.choice)));
+        room.results = results.map(([user, votes]) => ({ user, votes }));
         submissions.set(room.code, []);
         room.state = "reviewing";
         if (room.queue.length) {

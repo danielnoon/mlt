@@ -3,6 +3,7 @@ import { Room } from "./types";
 import Center from "../../components/Center";
 import Title from "../../components/text/Title";
 import Button from "../../components/Button";
+import Padding from "../../components/Padding";
 
 interface JoiningProps {
   room: Room;
@@ -20,14 +21,22 @@ const Joining = ({ room, onReady }: JoiningProps) => {
   if (room.players.length < 3) {
     return (
       <Center flood>
-        <Title>Waiting for more players to join...</Title>
+        <Padding>
+          <Title style={{ textAlign: "center" }}>
+            Waiting for more players to join...
+          </Title>
+        </Padding>
       </Center>
     );
   } else {
     return (
       <Center flood>
         {ready ? (
-          <Title>Waiting for other players...</Title>
+          <Padding>
+            <Title style={{ textAlign: "center" }}>
+              Waiting for other players...
+            </Title>
+          </Padding>
         ) : (
           <Button large onClick={readyUp}>
             Ready!

@@ -2,18 +2,22 @@ import styled, { css } from "styled-components";
 
 interface PaddingProps {
   amount?: number;
-  flood?: boolean;
+  flood?: boolean | "x" | "y";
 }
 
 const Padding = styled.div<PaddingProps>`
-  ${(props) =>
-    props.flood &&
+  ${({ flood, amount }) =>
+    flood &&
     css`
-      width: 100%;
-      height: 100%;
+      width: ${flood === true || flood === "x"
+        ? `calc(100% - ${amount}px)`
+        : "unset"};
+      height: ${flood === true || flood === "y"
+        ? `calc(100% - ${amount}px)`
+        : "unset"};
     `}
 
-  padding: ${(props) => props.amount ?? 24}px;
+  padding: ${({ amount }) => amount ?? 24}px;
 `;
 
 export default Padding;

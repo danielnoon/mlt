@@ -16,6 +16,9 @@ function getFontStyles(props: ButtonProps) {
       @media (max-width: 600px) {
         font-size: 24px;
       }
+      @media (max-width: 400px) {
+        font-size: 18px;
+      }
     `;
   } else {
     return css`
@@ -92,6 +95,17 @@ const Button = styled.button<ButtonProps>`
   &:hover,
   &:focus {
     transform: translate(${-X_TRANSLATE}px, ${-Y_TRANSLATE}px);
+  }
+  &:disabled,
+  &[disabled] {
+    color: var(--c-text);
+    background-color: var(--c-bg);
+    cursor: disabled;
+    &:hover,
+    &:focus {
+      transform: translate(0, 0);
+      box-shadow: 0 0 0 0 var(--c-background);
+    }
   }
 `;
 

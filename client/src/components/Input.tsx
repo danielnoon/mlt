@@ -16,6 +16,7 @@ const Input = styled.input<CodeInputProps>`
   text-align: center;
   border-bottom: 6px solid var(--c-secondary);
   transition: 150ms ease-in-out;
+  max-width: 100%;
   font-family: var(--f-body);
   ::placeholder {
     color: var(--c-accent-text);

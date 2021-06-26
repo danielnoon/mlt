@@ -1,7 +1,6 @@
+import { Check, FileCopy } from "@material-ui/icons";
 import { FC, useState } from "react";
 import styled from "styled-components";
-import FileCopyTwoToneIcon from "@material-ui/icons/FileCopyTwoTone";
-import CheckTwoToneIcon from "@material-ui/icons/CheckTwoTone";
 import Button from "./Button";
 
 interface RoomCodeProps {
@@ -30,9 +29,9 @@ const RoomCodeBase: FC<RoomCodeProps> = ({ code, small, className }) => {
       <strong className={className}>
         {code}
         {copied ? (
-          <CheckTwoToneIcon fontSize={small ? "default" : "large"} />
+          <Check fontSize={small ? "default" : "large"} />
         ) : (
-          <FileCopyTwoToneIcon fontSize={small ? "default" : "large"} />
+          <FileCopy fontSize={small ? "default" : "large"} />
         )}
       </strong>
     </Button>

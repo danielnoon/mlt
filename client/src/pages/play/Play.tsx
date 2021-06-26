@@ -1,44 +1,89 @@
 import { useEffect } from "react";
 import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 import socket from "../../socket";
 import Button from "../../components/Button";
 import Grid from "../../components/Grid";
 import GridItem from "../../components/GridItem";
 import Input from "../../components/Input";
-import Title from "../../components/text/Title";
-import { Room } from "./types";
+import { Room, Ack } from "./types";
 import Joining from "./Joining";
 import Flex from "../../components/Flex";
 import Center from "../../components/Center";
-import { ExitToApp } from "@material-ui/icons";
 import { Heading1 } from "../../components/Typography";
 import RoomCode from "../../components/RoomCode";
 import Players from "./Players";
+import Deliberating from "./Deliberating";
+import Reviewing from "./Reviewing";
+import useDesktop from "../../hooks/useDesktop";
+import { ExitToApp } from "@material-ui/icons";
 
 const Play = () => {
+  const { code } = useParams<{ code: string }>();
   const [name, setName] = useState("");
   const [room, setRoom] = useState<Room | null>(null);
-  const [answers, setAnswers] = useState<string[]>([]);
-  const { code } = useParams<{ code: string }>();
-
-  console.log(room);
+  const [token, setToken] = useState("");
+  const desktop = useDesktop();
+  const history = useHistory();
 
   useEffect(() => {
-    socket.on("update-room", (room) => setRoom(room));
-    socket.on("show-answers", (answers) => setAnswers(answers));
+    const onUpdate = (room: Room) => setRoom(room);
+
+    socket.on("update-room", onUpdate);
+
+    return () => {
+      socket.off("update-room", onUpdate);
+    };
+  }, []);
+
+  useEffect(() => {
+    const token = sessionStorage.getItem("token");
+
+    if (token) {
+      socket.emit("rejoin", token, ({ data, error }: Ack<Room>) => {
+        if (!error) {
+          setRoom(data);
+        } else {
+          sessionStorage.clear();
+          setRoom(null);
+        }
+      });
+    }
   }, []);
 
   function join() {
-    socket.emit("join-room", code, name, (room: Room) => setRoom(room));
+    socket.emit(
+      "join-room",
+      code,
+      name,
+      ({ data, error }: Ack<{ room: Room; token: string }>) => {
+        if (!error && data) {
+          setRoom(data.room);
+          setToken(data.token);
+          sessionStorage.setItem("token", data.token);
+        } else {
+          alert("Error! " + error);
+        }
+      }
+    );
   }
 
   function ready() {
-    socket.emit("ready");
+    socket.emit("ready", token, ({ error }: Ack<null>) => {
+      if (error) {
+        alert(error);
+        setRoom(null);
+      }
+    });
   }
 
   function select(player: string) {
-    socket.emit("submit", player);
+    socket.emit("submit", token, player);
+  }
+
+  function logout() {
+    sessionStorage.clear();
+    history.push("/");
   }
 
   if (!room) {
@@ -51,8 +96,8 @@ const Play = () => {
             onChange={(ev) => setName(ev.target.value)}
           />
           <Center>
-            <Button large onClick={join}>
-              Join <ExitToApp style={{ marginLeft: 12, fontSize: 38 }} />
+            <Button large onClick={join} color="green">
+              Join
             </Button>
           </Center>
         </Flex>
@@ -63,46 +108,41 @@ const Play = () => {
   return (
     <Grid
       flood
-      templateColumns="300px 1fr 300px"
+      templateColumns={desktop ? "300px 1fr 300px" : "100%"}
       templateRows="120px 1fr"
-      areas={["title title title", "main main right"]}
+      areas={
+        desktop ? ["title title title", "main main right"] : ["title", "main"]
+      }
     >
       <GridItem area="title">
-        <Flex style={{ padding: "0 32px" }} justify="space-between">
-          <Heading1>Who's Most Likely To?</Heading1>
+        <Flex
+          flood="y"
+          style={{ padding: desktop ? "0 32px" : "0 24px" }}
+          justify={desktop ? "space-between" : "flex-end"}
+        >
+          {desktop && <Heading1>Who's Most Likely To?</Heading1>}
           <Center>
-            <RoomCode small code={code} />
+            <Flex direction="row" columnGap={24}>
+              <RoomCode small code={code} />
+              <Button large color="accent">
+                <ExitToApp fontSize="large" onClick={logout} />
+              </Button>
+            </Flex>
           </Center>
         </Flex>
       </GridItem>
-      <GridItem area="right">
-        <Players room={room} />
-      </GridItem>
+      {desktop && (
+        <GridItem area="right">
+          <Players room={room} />
+        </GridItem>
+      )}
       <GridItem area="main">
         {room.state === "joining" && <Joining room={room} onReady={ready} />}
         {room.state === "deliberating" && (
-          <div>
-            <Title>{room.question}</Title>
-            <div>
-              {room.players.map((player) => (
-                <Button key={player.id} onClick={() => select(player.id)}>
-                  {player.name}
-                </Button>
-              ))}
-            </div>
-          </div>
+          <Deliberating room={room} onSelect={select} />
         )}
         {room.state === "reviewing" && (
-          <div>
-            <ul>
-              {answers.map((ans, i) => (
-                <li key={i}>{ans}</li>
-              ))}
-            </ul>
-            <Button large onClick={ready}>
-              Ready
-            </Button>
-          </div>
+          <Reviewing room={room} onReady={ready} />
         )}
       </GridItem>
     </Grid>

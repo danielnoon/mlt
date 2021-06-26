@@ -21,6 +21,11 @@ export interface Result {
   user: string;
 }
 
+export interface Submission {
+  user: string;
+  choice: string;
+}
+
 export interface Ack<T> {
   data: T | null;
   error: string;

@@ -6,6 +6,9 @@ const Title = styled.h1`
   @media (max-width: 600px) {
     font-size: 54px;
   }
+  @media (max-width: 400px) {
+    font-size: 36px;
+  }
   line-height: 1.2em;
 `;
 
