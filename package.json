@@ -3,9 +3,11 @@
   "version": "1.0.0",
   "description": "A simple, room-based \"Who's Most Likely To\" game.",
   "scripts": {
+    "dev": "run-p dev:client dev:server",
     "dev:client": "npm start -w client",
     "dev:server": "npm run dev -w server",
-    "dev": "run-p dev:client dev:server",
+    "build:client": "npm run build -w client",
+    "build:server": "npm run build -w server",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
