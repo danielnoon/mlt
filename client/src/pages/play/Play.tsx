@@ -6,7 +6,7 @@ import Button from "../../components/Button";
 import Grid from "../../components/Grid";
 import GridItem from "../../components/GridItem";
 import Input from "../../components/Input";
-import { Room, Ack } from "./types";
+import { Room, Ack } from "mlt-types";
 import Joining from "./Joining";
 import Flex from "../../components/Flex";
 import Center from "../../components/Center";

@@ -1,7 +1,14 @@
-export default class Room {
-  constructor(
-    public id: string,
-    public players: string[] = [],
-    public host: string
-  ) {}
+import Result from "./Result";
+import User from "./User";
+
+export default interface Room {
+  question: string;
+  state: "joining" | "deliberating" | "reviewing";
+  code: string;
+  host: string;
+  players: User[];
+  queue: User[];
+  ready: string[];
+  category: string;
+  results: Result[];
 }

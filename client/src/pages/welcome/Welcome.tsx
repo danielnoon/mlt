@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import ArrowForwardTwoToneIcon from "@material-ui/icons/ArrowForwardTwoTone";
 import { Heading2 } from "../../components/Typography";
@@ -9,7 +9,6 @@ import Flex from "../../components/Flex";
 import Padding from "../../components/Padding";
 import RoomCode from "../../components/RoomCode";
 import CodeInput from "../../components/CodeInput";
-import { useEffect } from "react";
 import socket from "../../socket";
 
 const Welcome = () => {

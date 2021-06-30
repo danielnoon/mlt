@@ -1,4 +1,4 @@
-import { Room } from "./types";
+import { Room } from "mlt-types";
 import Padding from "../../components/Padding";
 import { Heading2 } from "../../components/Typography";
 import { Done } from "@material-ui/icons";

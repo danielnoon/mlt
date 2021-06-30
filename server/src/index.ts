@@ -3,7 +3,7 @@ import { counter } from "./counter";
 import data from "./data/questions.json";
 import { deadUsers, rooms, submissions, users } from "./data/store";
 import { getToken, validateToken } from "./token";
-import { Room, User } from "./types";
+import { Room } from "mlt-types";
 
 const mixed = data.data.reduce<string[]>(
   (prev, curr) => [...curr.questions, ...prev],

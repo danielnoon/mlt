@@ -1,4 +1,4 @@
-import { Room, Submission, User } from "../types";
+import { Room, Submission, User } from "mlt-types";
 
 export const users = new Map<string, User>();
 export const rooms = new Map<string, Room>();

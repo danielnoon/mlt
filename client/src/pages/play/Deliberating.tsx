@@ -1,4 +1,4 @@
-import { Room } from "./types";
+import { Room } from "mlt-types";
 import Center from "../../components/Center";
 import Question from "../../components/Question";
 import Flex from "../../components/Flex";

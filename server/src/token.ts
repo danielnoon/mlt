@@ -1,4 +1,4 @@
-import { User } from "./types";
+import { User } from "mlt-types";
 import { SignJWT } from "jose/jwt/sign";
 import { generateSecret } from "jose/util/generate_secret";
 import { KeyLike } from "jose/types";

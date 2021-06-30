@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Room } from "./types";
+import { Room } from "mlt-types";
 import Center from "../../components/Center";
 import Button from "../../components/Button";
 
