@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect, KeyboardEvent } from "react";
+import { Link, useHistory } from "react-router-dom";
 import ArrowForwardTwoToneIcon from "@material-ui/icons/ArrowForwardTwoTone";
 import { Heading2 } from "../../components/Typography";
 import Center from "../../components/Center";
@@ -15,6 +15,7 @@ const Welcome = () => {
   const [page, setPage] = useState(0);
   const [roomCode, setRoomCode] = useState("");
   const [newRoom, setNewRoom] = useState("");
+  const history = useHistory();
 
   useEffect(() => {
     if (page === 2) {
@@ -22,15 +23,31 @@ const Welcome = () => {
     }
   }, [page]);
 
+  function codeSubmit() {
+    if (roomCode.length === 6) {
+      history.push(`/play/${roomCode}`);
+    }
+  }
+
+  function checkCodeSubmit(event: KeyboardEvent<HTMLInputElement>) {
+    if (event.key === "Enter") {
+      codeSubmit();
+    }
+  }
+
   return (
     <main style={{ height: "100%" }}>
       {page === 0 && (
         <Center flood>
           <Padding>
             <Flex direction="column">
-              <Title>Who’s Most Likely To?</Title>
+              <Padding>
+                <Title style={{ textAlign: "center" }}>
+                  Who’s Most Likely To?
+                </Title>
+              </Padding>
               <Button large onClick={() => setPage(1)}>
-                Get Started{" "}
+                Get Started
                 <ArrowForwardTwoToneIcon
                   style={{ marginLeft: 16, fontSize: 36 }}
                 />
@@ -43,7 +60,11 @@ const Welcome = () => {
         <Center flood>
           <Padding>
             <Flex direction="column">
-              <Title>Do you have a room code?</Title>
+              <Padding>
+                <Title style={{ textAlign: "center" }}>
+                  Do you have a room code?
+                </Title>
+              </Padding>
               <Padding>
                 <Flex direction="row" columnGap={48} justify="center">
                   <Button large color="green" onClick={() => setPage(3)}>
@@ -94,17 +115,21 @@ const Welcome = () => {
             large
             autoFocus
             maxLength={6}
+            onKeyPress={checkCodeSubmit}
           />
           <Padding>
             <Flex columnGap={36}>
               <Button large onClick={() => setPage(1)} color="orange">
                 Go Back
               </Button>
-              <Link to={`/play/${roomCode}`} style={{ textDecoration: "none" }}>
-                <Button large color="green">
-                  Continue
-                </Button>
-              </Link>
+              <Button
+                large
+                color="green"
+                disabled={roomCode.length < 6}
+                onClick={codeSubmit}
+              >
+                Continue
+              </Button>
             </Flex>
           </Padding>
         </Center>

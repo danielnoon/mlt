@@ -1,12 +1,15 @@
 import styled from "styled-components";
 
-interface GridProps {
+interface GridItemProps {
   area?: string;
 }
 
-const Grid = styled.div<GridProps>`
+const GridItem = styled.div<GridItemProps>`
   display: block;
   grid-area: ${(props) => props.area};
+  min-height: 0;
+  min-width: 0;
+  overflow: auto;
 `;
 
-export default Grid;
+export default GridItem;

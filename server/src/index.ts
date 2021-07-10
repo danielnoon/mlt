@@ -116,6 +116,8 @@ io.on("connect", (socket) => {
       return;
     }
 
+    deadUsers.delete(user.id);
+
     const room = rooms.get(user.room);
 
     if (!room) {
@@ -170,7 +172,11 @@ io.on("connect", (socket) => {
     if (!room.ready.includes(user.id)) {
       room.ready.push(user.id);
 
-      if (room.ready.length === room.players.length) {
+      const dead = Array.from(deadUsers.values());
+      console.log(dead);
+      const deadL = dead.filter((u) => u.room === room.code).length;
+
+      if (room.ready.length === room.players.length - deadL) {
         room.question = questionFrom(room.category);
         room.state = "deliberating";
         room.ready = [];
@@ -190,7 +196,12 @@ io.on("connect", (socket) => {
 
     if (!subs.find((sub) => sub.user === user.id)) {
       subs.push({ choice, user: user.id });
-      if (subs.length === room.players.length) {
+
+      const dead = Array.from(deadUsers.values()).filter(
+        (u) => u.room === room.code
+      ).length;
+
+      if (subs.length === room.players.length - dead) {
         const results = Object.entries(counter(subs.map((s) => s.choice)));
         room.results = results.map(([user, votes]) => ({ user, votes }));
         submissions.set(room.code, []);
@@ -205,7 +216,7 @@ io.on("connect", (socket) => {
   });
 
   socket.on("disconnect", () => {
-    deadUsers.set(socket.id, users.get(socket.id));
+    if (users.has(socket.id)) deadUsers.set(socket.id, users.get(socket.id));
   });
 
   socket.onAny((event, ...args) => {

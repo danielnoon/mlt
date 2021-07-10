@@ -17,6 +17,7 @@ import Deliberating from "./Deliberating";
 import Reviewing from "./Reviewing";
 import useDesktop from "../../hooks/useDesktop";
 import { ExitToApp } from "@material-ui/icons";
+import checkEnter from "../../util/checkEnter";
 
 const Play = () => {
   const { code } = useParams<{ code: string }>();
@@ -50,6 +51,10 @@ const Play = () => {
       });
     }
   }, []);
+
+  function chooseUsername() {
+    if (name.length > 0) join();
+  }
 
   function join() {
     socket.emit(
@@ -89,18 +94,21 @@ const Play = () => {
   if (!room) {
     return (
       <Center flood>
-        <Flex direction="column" rowGap={48}>
-          <Input
-            placeholder="Username"
-            value={name}
-            onChange={(ev) => setName(ev.target.value)}
-          />
-          <Center>
-            <Button large onClick={join} color="green">
-              Join
-            </Button>
-          </Center>
-        </Flex>
+        <div style={{ maxWidth: "100vw" }}>
+          <Flex direction="column" rowGap={48}>
+            <Input
+              placeholder="Username"
+              value={name}
+              onChange={(ev) => setName(ev.target.value)}
+              onKeyPress={checkEnter(chooseUsername)}
+            />
+            <Center>
+              <Button large onClick={chooseUsername} color="green">
+                Join
+              </Button>
+            </Center>
+          </Flex>
+        </div>
       </Center>
     );
   }
