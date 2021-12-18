@@ -5,4 +5,4 @@ import User from "./User";
 import Question from "./Question";
 import Submission from "./Submission";
 
-export { Room, Result, Ack, User, Question, Submission };
+export type { Room, Result, Ack, User, Question, Submission };

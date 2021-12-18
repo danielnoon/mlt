@@ -62,7 +62,7 @@ function removeUser(id: string) {
 io.on("connect", (socket) => {
   socket.on("join-room", async (room: string, name: string, ack) => {
     socket.join(room);
-    const user = { id: socket.id, name: name, room };
+    const user = { id: socket.id, name: name, room, disconnected: false };
 
     users.set(socket.id, user);
 
@@ -216,7 +216,9 @@ io.on("connect", (socket) => {
   });
 
   socket.on("disconnect", () => {
-    if (users.has(socket.id)) deadUsers.set(socket.id, users.get(socket.id));
+    if (users.has(socket.id)) {
+      users.get(socket.id)!.disconnected = true;
+    }
   });
 
   socket.onAny((event, ...args) => {
