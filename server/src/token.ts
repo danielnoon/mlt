@@ -8,7 +8,7 @@ import { users } from "./data/store";
 let s: KeyLike | null = null;
 
 const JWT_SECRET = (async () =>
-  s ? s : (s = await generateSecret("HS256")))();
+  s ? s : (s = (await generateSecret("HS256")) as KeyLike))();
 
 export async function getToken(user: User) {
   return await new SignJWT({})
